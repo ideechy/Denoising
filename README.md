@@ -21,5 +21,5 @@ Our main contribution is the application of these algorithms to the denoising pr
 
 Clone it to your local folder:
 ```
-git clone https://github.ncsu.edu/hchen36/Denosing.git
+git clone https://github.ncsu.edu/hchen36/Denoising.git
 ```
