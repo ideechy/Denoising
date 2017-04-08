@@ -20,15 +20,33 @@ X1=(Denoise(imColorNoise, 40, p=0.4))
 X2=(DenoiseUnif(imColorNoise, 40, p=0.4))
 X3=(Denoise(imColorNoise, 40, p=0))
 res=c()
-for (r in 5*c(1:10)){
+for (r in c(c(1:18),5*c(4:10))){
     X = DenoiseUnif(imColorNoise, r, p=0.4)
-    res = c(res,sum(sapply(1:4,FUN=function(i){norm(im[,,i]-X[,,i],"F")})))
+    res = c(res,sum(sapply(1:4,FUN=function(i){norm(im[,,i]-X[,,i],"F")^2})))
 }
-    
+
+sum(sapply(1:4,FUN=function(i){norm(im[,,i]-X[,,i],"F")^2}))
+
 sum(sapply(1:4,FUN=function(i){norm(im[,,i]-X2[,,i],"F")}))
 sum(sapply(1:4,FUN=function(i){norm(im[,,i]-X3[,,i],"F")}))
-sum(sapply(1:4,FUN=function(i){norm(im[,,i]-imColorNoise[,,i],"F")}))
+dash = sqrt(sum(sapply(1:4,FUN=function(i){norm(im[,,i]-imColorNoise[,,i],"F")^2})))
+plot(sqrt(res[11:35]), type='l', ylim=c(200,320), xlab='rank', ylab='Frobenius norm')
+abline(h=309,lty=2,col='red')
 
+DetectNoise <- function(X){
+    # X is an input m*n matrix
+    m <- nrow(X)
+    n <- ncol(X)
+    LeftRight <- cbind(0,0,X) + cbind(X,0,0)
+    LeftRight <- LeftRight[,2:(n+1)]
+    UpDown <- rbind(0,0,X) + rbind(X,0,0)
+    UpDown <- UpDown[2:(m+1),]
+    denominator <- matrix(rep(4,m*n),m,n)
+    denominator[c(1,m),] <- 3; denominator[,c(1,n)] <- 3;
+    denominator[c(1,m),c(1,n)] <- 2
+    PixelAvg <- (LeftRight + UpDown)/denominator
+    Diff <- (X - PixelAvg)^2
+}
 
 ReduceRank <- function(X, rank, p=0){
     # X is an input m*n matrix
@@ -66,8 +84,8 @@ ReduceRankUnif <- function(X, rank, p=0){
     return(P)
 }
 Denoise <- function(X, rank, p=0){
-    # X is an input m*n matrix
-    # rank is the desired rank of the output matrix
+    # X is an input m*n*d array, preferably of class "Image"
+    # rank is the desired rank of the output array
     # p is the corruption probability of every pixel
     if (colorMode(X) == 0){
         return(ReduceRank(X, rank, p))
@@ -79,8 +97,8 @@ Denoise <- function(X, rank, p=0){
     }
 }
 DenoiseUnif <- function(X, rank, p=0){
-    # X is an input m*n matrix
-    # rank is the desired rank of the output matrix
+    # X is an input m*n*d array, preferably of class "Image"
+    # rank is the desired rank of the output array
     # p is the corruption probability of every pixel
     if (colorMode(X) == 0){
         return(ReduceRankUnif(X, rank, p))
