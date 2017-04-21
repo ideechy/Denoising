@@ -94,7 +94,7 @@ GenerateNoise <- function(X, p, type=0){
     n <- dim(X)[2]
     NoiseLocation <- which(rbinom(m*n, 1, p)==1)
     NoiseNumber <- length(NoiseLocation)
-    if (is.na(dim(X))){
+    if (is.na(dim(X)[3])){
         X[NoiseLocation] <- runif(n=NoiseNumber, max=type)
     } else {
         for (d in 1:dim(X)[3]){
