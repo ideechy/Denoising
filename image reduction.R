@@ -15,7 +15,9 @@ display(Denoise(imColorNoise, 10, p=0.2))
 display(Denoise(imColorNoise, 20, p=0.2))
 display(Denoise(imColorNoise, 20, p=0.5))
 display(Denoise(imColorNoise, 20, p=0.9))
-display(DenoiseUnif(imColorNoise,40, p=0.4))
+display(DenoiseUnif(imColorNoise,20, p=0.4))
+
+
 X1=(Denoise(imColorNoise, 40, p=0.4))
 X2=(DenoiseUnif(imColorNoise, 40, p=0.4))
 X3=(Denoise(imColorNoise, 40, p=0))
@@ -30,7 +32,7 @@ sum(sapply(1:4,FUN=function(i){norm(im[,,i]-X[,,i],"F")^2}))
 sum(sapply(1:4,FUN=function(i){norm(im[,,i]-X2[,,i],"F")}))
 sum(sapply(1:4,FUN=function(i){norm(im[,,i]-X3[,,i],"F")}))
 dash = sqrt(sum(sapply(1:4,FUN=function(i){norm(im[,,i]-imColorNoise[,,i],"F")^2})))
-plot(sqrt(res[11:35]), type='l', ylim=c(200,320), xlab='rank', ylab='Frobenius norm')
+plot(c(1:18,20,25,30,35,40,45,50), sqrt(res[11:35]), type='l', ylim=c(200,320), xlab='rank', ylab='Frobenius norm')
 abline(h=309,lty=2,col='red')
 
 DetectNoise <- function(X){
@@ -56,13 +58,15 @@ ReduceRank <- function(X, rank, p=0){
     n <- ncol(X)
     # o is the probability of observe a uncorrupted pixel
     o <- 1-p
+    center <- rowMeans(X)
+    X <- X-center
     # Calculate the covariance matrix
     XtX = X %*% t(X)
     C <- 1/n * (1/o^2 * XtX + (1/o-1/o^2) * diag(diag(XtX)))
     # Get eigenvectors correspond to the biggest #=rank eigenvalues
     V <- eigen(C)$vector[,1:rank]
     # Project X to the column space of V
-    P <- V %*% t(V) %*% X
+    P <- V %*% t(V) %*% X + center
     return(P)
 }
 ReduceRankUnif <- function(X, rank, p=0){
@@ -73,6 +77,8 @@ ReduceRankUnif <- function(X, rank, p=0){
     n <- ncol(X)
     # o is the probability of observe a uncorrupted pixel
     o <- 1-p
+    center <- rowMeans(X)
+    X <- X-center
     # Calculate the covariance matrix
     Cdiag = (diag(X %*% t(X)) - n*p/3)/o
     Coffdiag = 1/o^2 * (X-p/2) %*% t(X-p/2)
@@ -80,7 +86,7 @@ ReduceRankUnif <- function(X, rank, p=0){
     # Get eigenvectors correspond to the biggest #=rank eigenvalues
     V <- eigen(C)$vector[,1:rank]
     # Project X to the column space of V
-    P <- V %*% t(V) %*% X
+    P <- V %*% t(V) %*% X + center
     return(P)
 }
 Denoise <- function(X, rank, p=0){
