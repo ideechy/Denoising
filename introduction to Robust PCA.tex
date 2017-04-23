@@ -1,0 +1,48 @@
+\documentclass[10pt]{article}
+
+\usepackage[top = 2cm, bottom = 2cm, left = 4cm, right = 4cm]{geometry}
+\usepackage{enumerate}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\title{Introduction to Robust PCA}
+\author{Bowen Liu, Renfei Gong, Haoyu Chen}
+
+%\setcounter{secnumdepth}{-2}
+
+\newcommand{\Real}{\mathbb{R}}
+\renewcommand{\d}{\mathrm{d}}
+\newcommand{\Expect}{\mathbf{E}}
+\newcommand{\Tra}{^{\top}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\V}[1]{{\mathbf{\MakeLowercase{#1}}}}
+\newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}}
+\newcommand{\Vn}[2]{\V{#1}^{(#2)}}
+\newcommand{\Vhat}[1]{\hat{\mathbf{\MakeLowercase{#1}}}}
+
+\begin{document}
+
+\maketitle
+Robust PCA breaks the noisy image into two parts: $D=A+E$, where $A$ is the original image and, $E$ is the noise, assuming that $A$ has low rank and $E$ is sparse. To find $A$ and $E$, we solve the problem:
+\begin{align*}
+\min & \; \| A \| _ \ast + \lambda \| E \|_1  \\
+ \textrm{subject to} \; & A+E=D,
+\end{align*}
+where$\| A \| _ \ast$ is the nuclear norm of $A$ and, $\|E\|_1$ is the sum of absolute value of each element in $E$.
+
+First, we replace the constraint with a penalty term:
+\[
+\min \; \mu \left( \| A \| _ \ast + \lambda \| E \|_1 \right) + \| A+E-D \|_F^2
+\]
+where the tuning parameter $\mu \downarrow 0$.
+
+Then, we implement FISTA method to $A$ and $E$ separately. For the $A$ part, the proximal mapping of nuclear norm is to first find the SVD, and then do the soft threshold to each of the singular values. For the $E$ part, the proximal mapping of the $\ell^1$-norm is to take the soft threshold of each element.
+\begin{align*}
+\tilde{A_k} =  \\
+A_{k+1} =  \\
+\tilde{E_k} =  \\
+E_{k+1} = ,
+\end{align*}
+where $t_k$, the extrapolating parameter for FISTA, is chosen as $t_{k+1}^2 - t_{k+1} = t_k^2$ to obtain a convergence rate of $O(k^{-2})$, while $\mu_k+1 = \max{0.9\mu_k , \mu_0}$ decreases exponentially until reaching a preset minimum $\mu_0$.
+
+\end{document}
