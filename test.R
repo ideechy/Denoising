@@ -58,9 +58,11 @@ MSE <- matrix(nrow=length(p), ncol=64)
 for (i in 1:length(p)){
     for (j in 1:64){
         A <- POPCAUnif(X, j, p[i])
-        MSE[i,j] <- norm(A-O, "F")
+        MSE[i,j] <- norm(A-O, "F")^2/64^2
     }
 }
+A <- RPCA(X)$A
+B <- POPCAUnif(X,rank=12,p=0.12)
 
 #plot
 library(ggplot2)
@@ -74,12 +76,14 @@ for (i in 2:6){
                     size=size[i])
     dp1 <- rbind(dp1,d)
 }
+dp1$MSE <- dp1$MSE^2/dp1$size^2
+dp1$noiseMSE <- dp1$noiseMSE^2/dp1$size^2
 dp1$size <- as.factor(dp1$size)
 
 qplot(rank, MSE/noiseMSE, data=dp1, geom="line", colour=size,
       main="Choice of rank in POPCA (p=optimal)")
 ggsave("figure/popca_mse_to_rank.eps",w=4,h=3)
-ggsave("figure/popca_mse_to_png.eps",w=4,h=3)
+ggsave("figure/popca_mse_to_rank.png",w=4,h=3)
 
 dp2 <- c()
 for (i in 2:6){
@@ -89,6 +93,8 @@ for (i in 2:6){
                     size=size[i])
     dp2 <- rbind(dp2,d)
 }
+dp2$MSE <- dp2$MSE^2/dp2$size^2
+dp2$noiseMSE <- dp2$noiseMSE^2/dp2$size^2
 dp2$size <- as.factor(dp2$size)
 
 qplot(p, MSE, data=dp2, geom="line", colour=size,
@@ -112,6 +118,8 @@ for (i in 2:6){
                     size=size[i])
     dp4 <- rbind(dp4,d)
 }
+dp4$MSE <- dp4$MSE^2/dp4$size^2
+dp4$noiseMSE <- dp4$noiseMSE^2/dp4$size^2
 dp4$size <- as.factor(dp4$size)
 
 qplot(log(time), MSE/noiseMSE, data=dp4, geom="line", colour=size,
@@ -133,10 +141,28 @@ dp5=data.frame(size, noiseMSE=dp5$noiseMSE,
             MSE=c(dp5$RMSE, dp5$POMSE),
             time=c(dp5$Rtime, dp5$POtime),
             method=as.factor(c(rep("RPCA",6),rep("POPCA",6))))
-
-qplot(size, MSE, data=dp5, geom=c("point", "line"), colour=method)
+dp5$MSE <- dp5$MSE^2/dp5$size^2
+dp5$noiseMSE <- dp5$noiseMSE^2/dp5$size^2
+qplot(size, MSE/noiseMSE, data=dp5, geom=c("point", "line"), colour=method)
 ggsave("figure/compare_mse_to_size.eps",w=4,h=3)
 ggsave("figure/compare_mse_to_size.png",w=4,h=3)
-qplot(size, time, data=dp5, geom=c("point", "line"), colour=method)
-ggsave("figure/compare_time_to_size.eps",w=4,h=3)
-ggsave("figure/compare_time_to_size.png",w=4,h=3)
+
+png("figure/ncsu_logo_64.png")
+par(mfrow=c(2,2), oma=c(0,0,0,0), mar=c(0,1,2,1))
+image(O[1:64,64:1], axes=F, main="Origin", col=paste("gray",1:99,sep=""))
+image(X[1:64,64:1], axes=F, main="Noise", col=paste("gray",1:99,sep=""))
+image(A[1:64,64:1], axes=F, main="RPCA", col=paste("gray",1:99,sep=""))
+image(B[1:64,64:1], axes=F, main="POPCA", col=paste("gray",1:99,sep=""))
+dev.off()
+
+O <- resize(im, 256, 256)
+X <- GenerateNoise(O, 0.3, 1)
+A <- RPCA(X)$A
+B <- POPCAUnif(X,rank=17,p=0.14)
+png("figure/ncsu_logo_256.png")
+par(mfrow=c(2,2), oma=c(0,0,0,0), mar=c(0,1,2,1))
+image(O[1:256,256:1], axes=F, main="Origin", col=paste("gray",1:99,sep=""))
+image(X[1:256,256:1], axes=F, main="Noise", col=paste("gray",1:99,sep=""))
+image(A[1:256,256:1], axes=F, main="RPCA", col=paste("gray",1:99,sep=""))
+image(B[1:256,256:1], axes=F, main="POPCA", col=paste("gray",1:99,sep=""))
+dev.off()
