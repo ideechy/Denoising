@@ -103,3 +103,19 @@ GenerateNoise <- function(X, p, type=0){
     }
     return(X)
 }
+
+DetectNoise <- function(X){
+    # X is an input m*n matrix
+    m <- nrow(X)
+    n <- ncol(X)
+    LeftRight <- cbind(0,0,X) + cbind(X,0,0)
+    LeftRight <- LeftRight[,2:(n+1)]
+    UpDown <- rbind(0,0,X) + rbind(X,0,0)
+    UpDown <- UpDown[2:(m+1),]
+    denominator <- matrix(rep(4,m*n),m,n)
+    denominator[c(1,m),] <- 3; denominator[,c(1,n)] <- 3;
+    denominator[c(1,m),c(1,n)] <- 2
+    PixelAvg <- (LeftRight + UpDown)/denominator
+    Diff <- (X - PixelAvg)^2
+    return(Diff)
+}
