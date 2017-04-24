@@ -146,6 +146,12 @@ dp5$noiseMSE <- dp5$noiseMSE^2/dp5$size^2
 qplot(size, MSE/noiseMSE, data=dp5, geom=c("point", "line"), colour=method)
 ggsave("figure/compare_mse_to_size.eps",w=4,h=3)
 ggsave("figure/compare_mse_to_size.png",w=4,h=3)
+qplot(size, time, data=dp5, geom=c("point", "line"), colour=method)
+ggsave("figure/compare_time_to_size.eps",w=4,h=3)
+ggsave("figure/compare_time_to_size.png",w=4,h=3)
+qplot(size, log(time), data=dp5, geom=c("point", "line"), colour=method)
+ggsave("figure/compare_logtime_to_size.eps",w=4,h=3)
+ggsave("figure/compare_logtime_to_size.png",w=4,h=3)
 
 png("figure/ncsu_logo_64.png")
 par(mfrow=c(2,2), oma=c(0,0,0,0), mar=c(0,1,2,1))
